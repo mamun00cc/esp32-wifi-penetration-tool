@@ -23,6 +23,7 @@
 #include "attack_dos.h"
 #include "webserver.h"
 #include "wifi_controller.h"
+#include "attack_method.h"
 
 static const char* TAG = "attack";
 static attack_status_t attack_status = { .state = READY, .type = -1, .content_size = 0, .content = NULL };
@@ -92,6 +93,12 @@ static void attack_timeout(void* arg){
             ESP_LOGI(TAG, "Abort DOS attack...");
             attack_dos_stop();
             break;
+        case ATTACK_TYPE_EVIL_TWIN:
+            ESP_LOGI(TAG, "Abort EVIL TWIN attack...");
+            attack_method_broadcast_stop();
+            wifictl_mgmt_ap_start();
+            wifictl_restore_ap_mac();
+            break;
         default:
             ESP_LOGE(TAG, "Unknown attack type. Not aborting anything");
     }
@@ -139,6 +146,11 @@ static void attack_request_handler(void *args, esp_event_base_t event_base, int3
             break;
         case ATTACK_TYPE_DOS:
             attack_dos_start(&attack_config);
+            break;
+        case ATTACK_TYPE_EVIL_TWIN:
+            ESP_LOGI(TAG, "Starting Evil Twin attack...");
+            attack_method_rogueap(attack_config.ap_record);
+            attack_method_broadcast(attack_config.ap_record, 1); // continuous deauth every 1s
             break;
         default:
             ESP_LOGE(TAG, "Unknown attack type!");

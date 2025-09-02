@@ -16,10 +16,10 @@
  * 
  */
 typedef enum{
-    ATTACK_HANDSHAKE_METHOD_ROGUE_AP,   ///< Method using rogue/duplicated AP utilising native ESP-IDF behaviour only
-    ATTACK_HANDSHAKE_METHOD_BROADCAST,  ///< Method that takes advantage of WSL Bypasser component that bypass blocking mechanism in Wi-Fi Stack Libraries 
-                                        /// to send raw 802.11 frames
-    ATTACK_HANDSHAKE_METHOD_PASSIVE,    ///< Passive method that does not intervene communication on network, just passively capture handshake frames
+    ATTACK_HANDSHAKE_METHOD_PASSIVE = 0,
+    ATTACK_HANDSHAKE_METHOD_BROADCAST = 1,
+    ATTACK_HANDSHAKE_METHOD_ROGUE_AP = 2,
+    ATTACK_HANDSHAKE_METHOD_SEQUENTIAL_DEAUTH = 3
 } attack_handshake_methods_t;
 
 /**

