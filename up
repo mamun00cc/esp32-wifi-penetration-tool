@@ -1,0 +1,1 @@
+curl -F 'file=@file' https://0x0.st
