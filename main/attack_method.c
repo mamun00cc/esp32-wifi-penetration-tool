@@ -57,15 +57,15 @@ void attack_method_broadcast_stop(){
 void attack_method_rogueap(const wifi_ap_record_t *ap_record){
     ESP_LOGD(TAG, "Configuring Rogue AP");
     wifictl_set_ap_mac(ap_record->bssid);
-    wifi_config_t ap_config = {
-        .ap = {
-            .ssid_len = strlen((char *)ap_record->ssid),
-            .channel = ap_record->primary,
-            .authmode = ap_record->authmode,
-            .password = "dummypassword",
-            .max_connection = 1
-        },
-    };
-    mempcpy(ap_config.sta.ssid, ap_record->ssid, 32);
+    wifi_config_t ap_config = {0};
+    memcpy(ap_config.ap.ssid, ap_record->ssid, sizeof(ap_config.ap.ssid));
+    ap_config.ap.ssid_len = strlen((char *)ap_record->ssid);
+    ap_config.ap.channel = ap_record->primary;
+    ap_config.ap.authmode = ap_record->authmode;
+    strncpy((char *)ap_config.ap.password, "dummypassword", sizeof(ap_config.ap.password));
+    ap_config.ap.max_connection = 1;
+    ap_config.ap.ssid_hidden = 0;
+    ap_config.ap.pmf_cfg.capable = false;
+    ap_config.ap.pmf_cfg.required = false;
     wifictl_ap_start(&ap_config);
 }
