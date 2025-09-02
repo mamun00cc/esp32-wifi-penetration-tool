@@ -42,8 +42,9 @@
                     <select id="attack_type" onChange="updateConfigurableFields(this)" required>
                         <option value="0" title="This type is not implemented yet." disabled>ATTACK_TYPE_PASSIVE</option>
                         <option value="1">ATTACK_TYPE_HANDSHAKE</option>
-                        <option value="2" selected>ATTACK_TYPE_PMKID</option>
+                        <option value="2">ATTACK_TYPE_PMKID</option>
                         <option value="3">ATTACK_TYPE_DOS</option>
+                        <option value="4">ATTACK_TYPE_EVIL_TWIN</option>
                     </select>
                 </p>
                 <p>
@@ -317,7 +318,7 @@
             case AttackTypeEnum.ATTACK_TYPE_HANDSHAKE:
                 console.log("HANDSHAKE configuration");
                 document.getElementById("attack_timeout").value = 60;
-                setAttackMethods(["DEAUTH_ROGUE_AP (PASSIVE)", "DEAUTH_BROADCAST (ACTIVE)", "CAPTURE_ONLY (PASSIVE)"]);
+                setAttackMethods(["DEAUTH_ROGUE_AP (PASSIVE)", "DEAUTH_BROADCAST (ACTIVE)", "CAPTURE_ONLY (PASSIVE)", "SEQUENTIAL_DEAUTH"]);
                 break;
             case AttackTypeEnum.ATTACK_TYPE_PMKID:
                 console.log("PMKID configuration");
@@ -327,6 +328,11 @@
                 console.log("DOS configuration");
                 document.getElementById("attack_timeout").value = 120;
                 setAttackMethods(["DEAUTH_ROGUE_AP (PASSIVE)", "DEAUTH_BROADCAST (ACTIVE)", "DEAUTH_COMBINE_ALL"]);
+                break;
+            case 4:
+                console.log("EVIL TWIN configuration");
+                document.getElementById("attack_timeout").value = 120;
+                setAttackMethods(["EVIL_TWIN"]);
                 break;
             default:
                 console.log("Unknown attack type");
