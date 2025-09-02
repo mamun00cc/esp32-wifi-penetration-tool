@@ -7,7 +7,7 @@
  * @brief Implements HCCAPX serializer
  */
 #include "hccapx_serializer.h"
-
+#include <arpa/inet.h>
 #include <stdint.h>
 #include <string.h>
 #define LOG_LOCAL_LEVEL ESP_LOG_DEBUG
